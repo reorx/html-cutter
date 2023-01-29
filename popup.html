@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    html {
+      padding: 0;
+      margin: 0;
+    }
+    body {
+      color: #333;
+      font-size: 12px;
+      margin: 0;
+      padding: 6px 10px 10px;
+      width: 430px;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+    .buttons > button {
+      margin-right: 8px;
+    }
+
+    section {
+      padding: 5px 0 8px;
+    }
+
+    section .title {
+      position: relative;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 13px;
+      color: #000;
+    }
+    section .title span {
+      display: inline-block;
+      padding-right: 8px;
+      background-color: #fff;
+      position: relative;
+      z-index: 1;
+      cursor: help;
+    }
+    section .title::after {
+      content: "";
+      display: block;
+      height: 1px;
+      background-color: #aaa;
+      position: relative;
+      bottom: 8px;
+    }
+
+    button:focus {
+      outline: 2px solid #ab2a0d;
+      outline-offset: 2px;
+    }
+
+    .error {
+      color: #a00;
+    }
+    .muted-text {
+      color: #aaa;
+    }
+
+    .tabs-body-container {
+      margin-top: 8px;
+    }
+    .tabs-body .content {
+      min-height: 200px;
+      max-height: 500px;
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    .tabs-body textarea.content {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 11px;
+      color: #333;
+    }
+
+    /* tabs */
+    .tabs {
+      display: flex;
+    }
+    .tabs-tab {
+      padding: 5px 8px;
+      margin-right: 16px;
+      background-color: #eee;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tabs-tab:last-child {
+      margin-right: 0;
+    }
+    .tabs-tab:hover {
+      border-color: #ccc;
+    }
+    .tabs-tab.active {
+      outline: 1px solid blue;
+    }
+
+    .tabs-body {
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tabs-tab">HTML</div>
+    <div class="tabs-tab">HTML Code</div>
+    <div class="tabs-tab">Text</div>
+  </div>
+
+  <div class="tabs-body-container">
+    <div class="tabs-body">
+      <div id="d-html" class="content"></div>
+    </div>
+
+    <div class="tabs-body" style="display:none;">
+      <textarea id="d-html-code" class="content"></textarea>
+    </div>
+
+    <div class="tabs-body" style="display:none;">
+      <div id="d-text" class="content"></div>
+    </div>
+  </div>
+
+  <script src="tabs.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
