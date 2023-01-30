@@ -2,7 +2,7 @@
   "name": "HTML Cutter",
   "version": "1.0.0",
   "manifest_version": 3,
-  "description": "Cut HTML elements from a page.",
+  "description": "Cut out HTML fragments from a page.",
   "author": "Reorx <novoreorx@gmail.com>",
   "icons": {
     "16": "logo-48.png",
