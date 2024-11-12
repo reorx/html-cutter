@@ -27,7 +27,7 @@ class App {
     this.elText = QS('#d-text')
 
     /* UI */
-    new Tabs('.tabs')
+    new TabSwitcher('.tabs')
   }
 
   handleTab(tab) {
@@ -60,9 +60,10 @@ class App {
         (results) => {
           console.log('results', results);
           const data = results[0].result
-
-          this.data.selectionText = data.selectionText
-          this.data.selectionHTML = data.selectionHTML
+          if (data) {
+            this.data.selectionText = data.selectionText
+            this.data.selectionHTML = data.selectionHTML
+          }
 
           self.render();
         });
@@ -143,22 +144,143 @@ app.loadSettings().then(() => {
 /* Functions */
 
 const executeInTab = function() {
-  const data = {}
-
-  // get selection as text
   const sel = window.getSelection()
-  data.selectionText = sel.toString()
 
-  // get selection as HTML
-  const range = sel.getRangeAt(0)
-  if (range) {
-    const div = document.createElement('div')
-    div.appendChild(range.cloneContents())
-    data.selectionHTML = div.innerHTML
-    div.remove()
+  if (sel.type === 'Range') {
+    const data = {}
+    // get selection as text
+    data.selectionText = sel.toString()
+
+    // get selection as HTML
+    const range = sel.getRangeAt(0)
+    if (range) {
+      const div = document.createElement('div')
+      div.appendChild(range.cloneContents())
+      data.selectionHTML = div.innerHTML
+      div.remove()
+    }
+    return data
   }
 
-  return data
+  // enable element selector
+  const hoverFrameId = 'html-cutter-hover-frame'
+  const getPointerEl = (e) => {
+    const els = document.elementsFromPoint(e.clientX, e.clientY);
+    if (!els || els.length === 0) {
+      return
+    }
+    // console.log('els', els.map(el => el.outerHTML));
+    return els[0]
+  }
+  const clearHoverFrame = () => {
+    const existingFrame = document.getElementById(hoverFrameId);
+    if (existingFrame) {
+      existingFrame.remove();
+    }
+  }
+  const mouseoverListener = (e) => {
+    // console.log(e);
+    const el = getPointerEl(e)
+    if (!el) return
+
+    // Remove any existing frame element
+    clearHoverFrame()
+
+    // Create a new frame element
+    const frame = document.createElement('div');
+    frame.id = hoverFrameId;
+    frame.style.position = 'absolute';
+    frame.style.pointerEvents = 'none'; // Ensure it doesn't interfere with mouse events
+    frame.style.border = '2px solid red';
+    frame.style.boxSizing = 'border-box';
+
+    // Calculate and set the position and size of the frame
+    const rect = el.getBoundingClientRect();
+    frame.style.left = `${rect.left + window.scrollX}px`;
+    frame.style.top = `${rect.top + window.scrollY}px`;
+    frame.style.width = `${rect.width}px`;
+    frame.style.height = `${rect.height}px`;
+
+    // Append the frame to the body
+    document.body.appendChild(frame);
+  }
+  document.addEventListener('mouseover', mouseoverListener)
+  const clickListener = (e) => {
+    const el = getPointerEl(e)
+    console.log('get final el', el)
+    showDialogWithElement(el)
+
+    clearHoverFrame()
+    document.removeEventListener('click', clickListener)
+    document.removeEventListener('mouseover', mouseoverListener)
+  }
+  document.addEventListener('click', clickListener)
+
+  const showDialogWithElement = (el) => {
+    // Create the dialog element
+    const dialog = document.createElement('dialog');
+    dialog.style.position = 'fixed';
+    dialog.style.top = '10vh';
+    dialog.style.left = '50%';
+    dialog.style.transform = 'translate(-50%, 0)';
+    dialog.style.width = '80vw';
+    dialog.style.height = '80vh';
+    dialog.style.padding = '0';
+    dialog.style.border = 'none';
+    dialog.style.zIndex = '10000';
+    dialog.style.padding = '16px';
+    dialog.style.overflowY = 'auto';
+
+    const container = document.createElement('div');
+    dialog.appendChild(container)
+
+    // Create the backdrop
+    const backdrop = document.createElement('div');
+    backdrop.style.position = 'fixed';
+    backdrop.style.top = '0';
+    backdrop.style.left = '0';
+    backdrop.style.width = '100%';
+    backdrop.style.height = '100%';
+    backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'; // Gray backdrop
+    backdrop.style.zIndex = '9999';
+
+    // Create a shadow root in the dialog
+    const shadowRoot = container.attachShadow({ mode: 'open' });
+    const style = document.createElement('style');
+
+    // Add CSS to the style element
+    style.textContent = `
+      /* prevent img with large width attribute from overflowing */
+      img {
+        max-width: 100%;
+        width: auto;
+        height: auto;
+      }
+    `;
+    shadowRoot.appendChild(style);
+
+    // Clone the provided element and append it to the shadow root
+    const clonedElement = el.cloneNode(true);
+    shadowRoot.appendChild(clonedElement);
+
+    // Append dialog and backdrop to the body
+    document.body.appendChild(backdrop);
+    document.body.appendChild(dialog);
+
+    // Show the dialog
+    dialog.showModal();
+
+    // When dialog is closed, remove it and the backdrop from the DOM
+    dialog.addEventListener('close', () => {
+      dialog.remove();
+      backdrop.remove();
+    });
+
+    // Clicking the backdrop closes the dialog
+    backdrop.addEventListener('click', () => {
+      dialog.close();
+    });
+  }
 }
 
 const uselessAttributes = ['class', 'id', 'style']

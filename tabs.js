@@ -1,4 +1,4 @@
-class Tabs {
+class TabSwitcher {
   tabsButtonClass = 'tabs-tab'
   tabsButtonActiveClass = 'active'
   tabsBodyClass = 'tabs-body'
